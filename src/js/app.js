@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import { gsap } from "gsap";
-import { Sprite, Texture } from 'pixi.js';
+import PixiPlugin from "gsap/PixiPlugin";
+import { Sprite } from 'pixi.js';
 
 //load PIXI
 const app = new PIXI.Application({
@@ -27,18 +28,23 @@ loader.add('backgroundGreen', '/images/background-1.avif')
 //containers
 const wheel = new PIXI.Container();
 const sectorContainer = new PIXI.Container();
+const boxesContainer = new PIXI.Container();
 
 //global variables
-let wheelSectors, sectorCount, bgBoxes, oneSector, background, bgTextures;
+let wheelSectors, sectorCount, bgBoxes, oneSector, background, bgTextures, boxContainerHeight;
 let radius = window.innerWidth / 6;
 const buttonRadius = 70;
 const circleDeg =  Math.PI * 2;
 const centerX = window.innerWidth / 2;
-const centerY = window.innerHeight / 2 - radius / 3;
+const centerY = window.innerHeight / 2;
 let animating = false;
+const boxWidth = 150;
+const boxHeight = 71;
 
 
 function setup(loader, resources){
+  gsap.registerPlugin(PixiPlugin);
+  PixiPlugin.registerPIXI(PIXI);
 
   wheelSectors = [
     {
@@ -83,6 +89,8 @@ function setup(loader, resources){
     },
   ]
   sectorCount = wheelSectors.length;
+
+  boxContainerHeight = sectorCount * boxHeight;
   bgBoxes = document.querySelectorAll('.change-bg .box')
   oneSector = circleDeg / sectorCount;
 
@@ -107,6 +115,15 @@ function setup(loader, resources){
   wheelGraphicsBg.beginFill(0x1f2f32).arc(0, 0, radius, 0, 360);
   wheel.addChild(wheelGraphicsBg);
 
+  //boxes container
+  boxesContainer.position.set(centerX - boxWidth - 20, centerY - boxContainerHeight - 215);
+  const boxContainerBg = new PIXI.Graphics();
+  boxContainerBg.beginFill(0x1f2f32); 
+  boxContainerBg.drawRect(-10, -10, boxWidth + 20, boxHeight * sectorCount + 20);
+  boxContainerBg.endFill();
+  // boxesContainer.addChild(boxContainerBg);
+  wheel.addChild(boxesContainer);
+
   wheelSectors.forEach((item, i)=>{
     const startAngle = (i * circleDeg) / sectorCount - 5 * (oneSector /2);
     const endAngle = ((i + 1) * circleDeg) / sectorCount - 5 * (oneSector /2);
@@ -114,6 +131,8 @@ function setup(loader, resources){
     // Create sector
     const sector = createSector(startAngle, endAngle, item);
     wheel.addChild(sector);
+
+    createBoxes(i, item);
   })
 
   //button
@@ -127,7 +146,7 @@ function setup(loader, resources){
   wheel.addChild(button);
 
   const triangleGraphics = new PIXI.Graphics();
-  triangleGraphics.beginFill(0xcf0300); // Change the color as needed
+  triangleGraphics.beginFill(0xcf0300); 
   triangleGraphics.moveTo(-15, -buttonRadius - 5);
   triangleGraphics.lineTo(20, -buttonRadius - 5);
   triangleGraphics.lineTo(0, -buttonRadius - 30);
@@ -140,36 +159,36 @@ function setup(loader, resources){
   button.addChild(buttonText);
 
   //event listeners
-  // Change button color on mouseover
-  button.on('pointerover', () => {
-    button.clear();
-    button.beginFill(0x1f2f32); // New color on mouseover, change as needed
-    button.drawCircle(0, 0, buttonRadius);
-    button.endFill();
+  button.on('pointerover', ()=> {
+    gsap.to(button, {
+      pixi: {
+        tint: 0x1f2f32
+      },
+      duration: 0.25,
+    })
 
-    triangleGraphics.clear();
-    triangleGraphics.beginFill(0x1f2f32);
-    triangleGraphics.moveTo(-15, -buttonRadius - 5);
-    triangleGraphics.lineTo(20, -buttonRadius - 5);
-    triangleGraphics.lineTo(0, -buttonRadius - 30);
-    triangleGraphics.lineTo(-20, -buttonRadius - 5);
-    triangleGraphics.endFill();
+    gsap.to(triangleGraphics, {
+      pixi: {
+        tint: 0x1f2f32
+      },
+      duration: 0.25,
+    })
   });
 
-  // Restore original button color on mouseout
   button.on('pointerout', () => {
-    button.clear();
-    button.beginFill(0xcf0300); // Original color on mouseout, change as needed
-    button.drawCircle(0, 0, buttonRadius);
-    button.endFill();
+    gsap.to(button, {
+      pixi: {
+        tint: 0xcf0300
+      },
+      duration: 0.25,
+    })
 
-    triangleGraphics.clear();
-    triangleGraphics.beginFill(0xcf0300);
-    triangleGraphics.moveTo(-15, -buttonRadius - 5);
-    triangleGraphics.lineTo(20, -buttonRadius - 5);
-    triangleGraphics.lineTo(0, -buttonRadius - 30);
-    triangleGraphics.lineTo(-20, -buttonRadius - 5);
-    triangleGraphics.endFill();
+    gsap.to(triangleGraphics, {
+      pixi: {
+        tint: 0xcf0300
+      },
+      duration: 0.25,
+    })
   });
 
   button.on('pointerdown',()=> onButtonClick(buttonText));
@@ -177,7 +196,7 @@ function setup(loader, resources){
 
 }
 
-
+//functions
 function onButtonClick(buttonText) {
   if(!animating){
     animating = true
@@ -185,7 +204,9 @@ function onButtonClick(buttonText) {
     let stopDegrees = getRandomInt(2,30) * circleDeg - stopIndex * oneSector;
 
     gsap.to(sectorContainer, {
-      rotation: `${stopDegrees}`, duration: 5, ease: "back.out(1.2)",
+      rotation: stopDegrees, 
+      duration: 5, 
+      ease: "back.out(1.2)",
       onStart: ()=>{
         if(wheelSectors[stopIndex].text){
           buttonText.text = wheelSectors[stopIndex].text;
@@ -195,14 +216,13 @@ function onButtonClick(buttonText) {
         
       },
       onComplete:()=>{
-        animating = false
-        buttonText.text = 'SPIN'
+        animateWinned(wheelSectors[stopIndex], buttonText);
+        animateWinned(wheelSectors[stopIndex], false);
       }
     });
   }
 }
 
-//functions
 function changeBgTexture(background){
   bgBoxes.forEach((box,index)=>{
     box.addEventListener('click', function(){
@@ -219,7 +239,7 @@ function resize() {
 
   wheel.position.set(
     window.innerWidth / 2,
-    window.innerHeight / 2 - radius / 3 
+    window.innerHeight / 2 
   );
   
   wheel.scale.set(window.innerWidth / 1920)
@@ -232,13 +252,13 @@ function createSector(startAngle, endAngle, item) {
   graphics.arc(0, 0, radius - 20, startAngle, endAngle);
   graphics.lineTo(0, 0);
   graphics.endFill();
+  graphics.name = item.prize
   sectorContainer.addChild(graphics);
 
   // Calculate center coordinates
   const centerCoordinates = calculateCenterCoordinates(startAngle, endAngle);
   const rotationAngle = (startAngle + endAngle) / 2;
 
-  // Add text to the center of the sector
   if(item.text){
     const text = new PIXI.Text(item.prize, { fill: 0x000, fontSize: 35 });
     text.anchor.set(0.5, 0.5);
@@ -257,6 +277,31 @@ function createSector(startAngle, endAngle, item) {
   return sectorContainer;
 }
 
+
+function createBoxes(i, item){
+  const box = new PIXI.Graphics();
+  box.beginFill(item.color); 
+  box.drawRect(0, 0, boxWidth, boxHeight);
+  box.endFill();
+  box.position.set(0, i * boxHeight);
+  box.alpha = 0.5;
+  box.name = item.prize
+  boxesContainer.addChild(box);
+
+  if(item.text){
+    const text = new PIXI.Text(item.prize, { fill: 0x000, fontSize: 35 });
+    text.anchor.set(0.5);
+    text.position.set(boxWidth / 2, boxHeight / 2 + boxHeight * i);
+    boxesContainer.addChild(text);
+  } else {
+    const sprite = new PIXI.Sprite(item.icon);
+    sprite.anchor.set(0.5, 0.5);
+    sprite.position.set(boxWidth / 2, boxHeight / 2 + boxHeight * i);
+    sprite.scale.set(0.1)
+    boxesContainer.addChild(sprite);
+  }
+}
+
 function calculateCenterCoordinates(startAngle, endAngle) {
   const angle = (startAngle + endAngle) / 2;
   const x = (radius / 1.3) * Math.cos(angle);
@@ -268,4 +313,52 @@ function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function animateWinned(item, box){
+  const graphics = box ? boxesContainer.getChildByName(item.prize) : sectorContainer.getChildByName(item.prize)
+
+  const tl = gsap.timeline({ 
+    repeat: 3,
+    onStart:()=>{
+      if(box) box.alpha = 1 
+    },
+    onComplete:()=>{ 
+      if(box){ 
+        box.text = 'SPIN'
+      } else {
+        animating = false
+      }
+      graphics.pixi.tint = item.color
+    },
+   })
+
+  tl.to(graphics, {
+    pixi: {
+    	tint: 0x39b6ff
+    },
+    duration: 0.1,
+    ease: "power1.in",
+  }, '>')
+  .to(graphics, {
+    pixi: {
+    	tint: 0xfce9d5
+    },
+    duration: 0.1,
+    ease: "power1.in",
+  },'>')
+  .to(graphics, {
+    pixi: {
+    	tint: 0xe86343
+    },
+    duration: 0.1,
+    ease: "power1.in",
+  }, '>')
+  .to(graphics, {
+    pixi: {
+    	tint: item.color
+    },
+    duration: 0.1,
+    ease: "power1.in",
+  }, '>')
 }
