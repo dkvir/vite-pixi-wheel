@@ -32,11 +32,9 @@ const boxesContainer = new PIXI.Container();
 
 //global variables
 let wheelSectors, sectorCount, bgBoxes, oneSector, background, bgTextures, boxContainerHeight;
-let radius = window.innerWidth / 6;
+let radius,centerX, centerY;
 const buttonRadius = 70;
 const circleDeg =  Math.PI * 2;
-const centerX = window.innerWidth / 2;
-const centerY = window.innerHeight / 2;
 let animating = false;
 const boxWidth = 150;
 const boxHeight = 71;
@@ -45,6 +43,10 @@ const boxHeight = 71;
 function setup(loader, resources){
   gsap.registerPlugin(PixiPlugin);
   PixiPlugin.registerPIXI(PIXI);
+
+  radius = window.innerWidth / 6;
+  centerX = window.innerWidth / 2;
+  centerY = window.innerHeight / 2;
 
   wheelSectors = [
     {
