@@ -1,3 +1,3 @@
 Tone Mapping, HDR, Gamma Correction, sRGB Color Space
 
-Demo: https://threejs-sphere-rho.vercel.app/
+Demo: https://vite-pixi-wheel.vercel.app/
