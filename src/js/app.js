@@ -239,16 +239,34 @@ function changeBgTexture(background) {
 function resize() {
   app.renderer.resize(window.innerWidth, window.innerHeight);
 
+  if (window.innerWidth > 820) {
+    boxesContainer.scale.set(1);
+    wheelContainer.scale.set(window.innerWidth / 1920);
+    wheelContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
+  } else if (window.innerWidth <= 820 && window.innerWidth > 540) {
+    boxesContainer.scale.set(0.7);
+    wheelContainer.scale.set(0.6);
+    wheelContainer.position.set(
+      window.innerWidth / 2 - wheelContainer.width / 8,
+      window.innerHeight / 2
+    );
+  } else if (window.innerWidth <= 540) {
+    boxesContainer.scale.set(0.5);
+    wheelContainer.scale.set(0.3);
+    wheelContainer.position.set(
+      window.innerWidth / 2 - wheelContainer.width / 6,
+      window.innerHeight / 2
+    );
+    console.log('resize');
+  }
+
   background.width = window.innerWidth;
   background.height = window.innerHeight;
 
-  wheelContainer.position.set(window.innerWidth / 2, window.innerHeight / 2);
   boxesContainer.position.set(
-    window.innerWidth - boxWidth - 20,
-    window.innerHeight / 2 - boxContainerHeight / 2
+    window.innerWidth - boxesContainer.width - 20,
+    window.innerHeight / 2 - boxesContainer.height / 2
   );
-
-  wheelContainer.scale.set(window.innerWidth / 1920);
 }
 
 function createSector(startAngle, endAngle, item) {

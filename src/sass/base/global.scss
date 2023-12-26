@@ -20,6 +20,10 @@ html {
   left: 20px;
   width: 200px;
   height: 50px;
+  @include mq(max-width 768px) {
+    width: 140px;
+    height: max-content;
+  }
   .box {
     @include size(50px);
     border-radius: 10px;
@@ -31,6 +35,10 @@ html {
       &:nth-child(#{length($colors)}n + #{$i}) {
         background-color: nth($colors, $i);
       }
+    }
+    @include mq(max-width 768px) {
+      @include size(30px);
+      border-radius: 5px;
     }
   }
 }
@@ -56,6 +64,6 @@ html {
   }
 
   .img {
-    width: 10vw;
+    width: 150px;
   }
 }
