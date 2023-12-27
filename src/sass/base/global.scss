@@ -25,7 +25,7 @@ html {
     position: relative;
     @include size(50px);
     border-radius: var(--box-border-radius, 50%);
-    $colors: #00593d, #010822, #b6202b;
+    $colors: #00593d, #7969cb, #b6202b;
     cursor: pointer;
     border: var(--border-size, 1px) solid var(--border-color, #fff);
     @include default-transitions(border-radius);
