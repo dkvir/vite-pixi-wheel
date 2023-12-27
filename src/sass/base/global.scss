@@ -3,10 +3,7 @@ body {
   width: 100%;
   height: 100%;
   line-height: 1;
-}
-::selection {
-  color: var(--color-casting-sea);
-  background-color: var(--color-pale-red);
+  background-color: #010822;
 }
 html {
   font-size: 16px;
@@ -25,11 +22,36 @@ html {
     height: max-content;
   }
   .box {
+    position: relative;
     @include size(50px);
-    border-radius: 10px;
+    border-radius: var(--box-border-radius, 50%);
     $colors: #00593d, #010822, #b6202b;
     cursor: pointer;
-    border: 1px solid #fff;
+    border: var(--border-size, 1px) solid var(--border-color, #fff);
+    @include default-transitions(border-radius);
+    &:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      @include size(20px);
+      background-color: #fff;
+      border-radius: 50%;
+      opacity: var(--is-active-opacity, 0);
+      @include default-transitions(opacity);
+      @include mq(max-width 768px) {
+        @include size(10px);
+      }
+    }
+    &.is-active {
+      --is-active-opacity: 1;
+      --border-size: 2px;
+      pointer-events: none;
+    }
+    &:hover {
+      --box-border-radius: 10px;
+    }
 
     @for $i from 1 through length($colors) {
       &:nth-child(#{length($colors)}n + #{$i}) {
@@ -38,7 +60,6 @@ html {
     }
     @include mq(max-width 768px) {
       @include size(30px);
-      border-radius: 5px;
     }
   }
 }

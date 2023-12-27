@@ -39,6 +39,7 @@ let wheelSectors,
   background,
   bgTextures,
   boxContainerHeight;
+let activeBackgroundIndex = 0;
 let radius = 400;
 let fullCircle = 5;
 const buttonRadius = 70;
@@ -98,7 +99,6 @@ function setup(loader, resources) {
   sectorCount = wheelSectors.length;
 
   boxContainerHeight = sectorCount * boxHeight;
-  bgBoxes = document.querySelectorAll('.change-bg .box');
   oneSector = circleDeg / sectorCount;
 
   //background texture
@@ -107,6 +107,10 @@ function setup(loader, resources) {
     resources.backgroundBlue,
     resources.backgroundRed,
   ];
+
+  bgBoxes = document.querySelectorAll('.change-bg .box');
+  bgBoxes[0].classList.add('is-active');
+
   background = new Sprite(bgTextures[0].texture);
   background.width = window.innerWidth;
   background.height = window.innerHeight;
@@ -231,7 +235,10 @@ function onButtonClick(buttonText) {
 function changeBgTexture(background) {
   bgBoxes.forEach((box, index) => {
     box.addEventListener('click', function () {
+      bgBoxes[activeBackgroundIndex].classList.remove('is-active');
+      activeBackgroundIndex = index;
       background.texture = bgTextures[index].texture;
+      bgBoxes[activeBackgroundIndex].classList.add('is-active');
     });
   });
 }
