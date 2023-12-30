@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js';
+import * as PIXI from 'pixi.js-legacy';
 import { gsap } from 'gsap';
 import PixiPlugin from 'gsap/PixiPlugin';
 import { Sprite } from 'pixi.js';
@@ -15,9 +15,8 @@ const app = new PIXI.Application({
 });
 
 app.renderer.resize(window.innerWidth, window.innerHeight);
-const loader = PIXI.Loader.shared;
 
-loader
+app.loader
   .add('backgroundGreen', '/images/background-1.avif')
   .add('backgroundBlue', '/images/background-2.avif')
   .add('backgroundRed', '/images/background-3.avif')

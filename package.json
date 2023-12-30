@@ -18,6 +18,7 @@
   "dependencies": {
     "gsap": "^3.12.4",
     "pixi.js": "^6.5.10",
+    "pixi.js-legacy": "^6.5.10",
     "vite-plugin-html": "^3.2.0"
   }
 }
