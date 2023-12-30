@@ -11,9 +11,10 @@ const app = new PIXI.Application({
   background: 0x000000,
   backgroundAlpha: 0,
   view: document.querySelector('.canvas'),
+  antialias: true,
 });
 
-app.renderer.view.style.position = 'absolute';
+app.renderer.resize(window.innerWidth, window.innerHeight);
 const loader = PIXI.Loader.shared;
 
 loader
@@ -244,8 +245,6 @@ function changeBgTexture(background) {
 }
 
 function resize() {
-  app.renderer.resize(window.innerWidth, window.innerHeight);
-
   if (window.innerWidth > 820) {
     boxesContainer.scale.set(1);
     wheelContainer.scale.set(window.innerWidth / 1920);
@@ -264,7 +263,6 @@ function resize() {
       window.innerWidth / 2 - wheelContainer.width / 6,
       window.innerHeight / 2
     );
-    console.log('resize');
   }
 
   background.width = window.innerWidth;
